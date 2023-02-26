@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: "Proxima Nova";
+    src: url("/fonts/proxima-nova-reg.otf");
+  }
+  @font-face {
+    font-family: "Proxima Nova";
+    src: url("/fonts/proxima-nova-semibold.otf");
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: "Proxima Nova";
+    src: url("/fonts/proxima-nova-bold.otf");
+    font-weight: 900;
+  }
+  @font-face {
+    font-family: "Proxima Nova";
+    src: url("/fonts/proxima-nova-bold.otf");
+    font-weight: bold;
+  }
+}
+
+@layer components {
+  .sidebar {
+    background-color: $whiteColor;
+    height: 100vh;
+    font-size: 1rem;
+
+    * {
+      font-size: 1rem;
+    }
+
+    .parentLink {
+      & > button {
+        font-weight: 700;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        cursor: auto;
+        pointer-events: none;
+      }
+    }
+
+    li {
+      width: 100%;
+      &.menubar > button > svg {
+        color: #1d21ff;
+      }
+      button {
+        width: 100%;
+        height: 40px;
+        display: flex;
+        align-content: flex-start;
+        align-items: center;
+
+        & > div {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: calc(100% - 4.3rem);
+          text-align: left;
+          &.surveymenu {
+            width: 100%;
+          }
+        }
+
+        & > svg {
+          margin-right: 0.875rem;
+          margin-top: 0.125rem;
+          float: left;
+        }
+
+        &.soon {
+          pointer-events: none;
+
+          & > div {
+            width: calc(100% - 6.4rem);
+          }
+
+          &:after {
+            content: "Soon";
+            background-color: $pinkBright;
+            color: $whiteColor;
+            float: right;
+            padding: 0.1rem 0.2rem;
+            border-radius: 0.2rem;
+            font-size: 0.7rem;
+          }
+        }
+      }
+    }
+
+    li:not(.parentLink, .menubar) {
+      button {
+        &:before {
+          content: "";
+          width: 24px;
+          width: 4px;
+          height: 28px;
+          left: 0px;
+          top: 6px;
+          padding-top: 6px;
+          padding-bottom: 6px;
+          margin-right: 20px;
+          background: linear-gradient(51.71deg, #1d21ff 12.32%, #52e2cb 93.11%);
+          border-radius: 0px 8px 8px 0px;
+          visibility: hidden;
+        }
+
+        &:hover,
+        &.active {
+          color: #1f2432;
+          background-color: #f4f5f7;
+        }
+
+        &.active {
+          &:before {
+            visibility: visible;
+          }
+        }
+      }
+    }
+  }
+
+  .page-link {
+    position: relative;
+    display: inline-flex;
+    border: 1px solid #dee2e6;
+    background-color: #ffffff;
+    padding: 10px 15px;
+    color: #0d6efd;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out;
+    cursor: pointer;
+  }
+
+  .page-link:first-child {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+
+  .page-link:last-child {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .page-link:not(:first-child) {
+    margin-left: -1px;
+  }
+
+  .page-link:hover,
+  .page-link:focus {
+    color: #0a58ca;
+    background-color: #e9ecef;
+  }
+
+  .page-link:focus {
+    z-index: 3;
+  }
+
+  .page-link.active {
+    z-index: 2;
+    color: #ffffff;
+    border-color: #0d6efd;
+    background-color: #0d6efd;
+  }
+
+  .page-link.disabled {
+    color: #6c757d;
+    pointer-events: none;
+  }
+}
