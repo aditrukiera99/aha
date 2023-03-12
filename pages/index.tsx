@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const Home: NextPage = () => {
   useEffect(() => {
-    Router.push("/login");
+    Router.push("/landing");
   });
 
   return <div></div>;

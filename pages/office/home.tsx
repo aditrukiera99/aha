@@ -1,115 +1,67 @@
+import axios from 'axios'
 import Head from "next/head";
+import React, { useEffect, useState } from 'react'
 import { Card } from "../../components/card/card";
 import { BaseLayout } from "../../components/layouts";
 import Image from "next/image";
-import totalSurveysIcon from "../../public/assets/images/icons/total-survey.png";
-import totalAudiencesIcon from "../../public/assets/images/icons/audience.png";
-import totalResearchers from "../../public/assets/images/icons/researcher.png";
-import totalUserInvited from "../../public/assets/images/icons/user-invited.png";
-import totalUserPending from "../../public/assets/images/icons/users-pending.png";
-import totalUserVerified from "../../public/assets/images/icons/users-verified.png";
-import pointUsed from "../../public/assets/images/icons/token-used.png";
-import pointEarned from "../../public/assets/images/icons/token-earned.png";
-import totalResponses from "../../public/assets/images/icons/response.png";
-import useAnalytics from "../../hooks/useAnalytics";
+import { Global } from '../../config/Global'
 import { Pipes } from "../../components/tools/pipes";
-import useCurrentDate from "../../hooks/useCurrentDate";
-import IconCalendar from "../../public/icons/icon-calendar";
-import { useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import moment from "moment";
-
-const firstDay = moment().startOf("month").format("YYYY-MM-DD");
-const endDay = moment().endOf("month").format("YYYY-MM-DD");
-
-// console.log("end day", endDay);
+import moment from 'moment'
+import Icon1 from "../../public/assets/images/icons/audience.png";
+import Icon2 from "../../public/assets/images/icons/researcher.png";
+import Icon3 from "../../public/assets/images/icons/user-invited.png";
 
 const Home = () => {
-  const { currentDate } = useCurrentDate();
 
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
+  const getToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
+  const authAxios = axios.create({
+    baseURL: Global.url,
+    headers: {
+      Authorization: `Bearer ${getToken}`
+    }
+  })
 
-  const { analytics, reFetch } = useAnalytics(`/statistic`);
+  const [totalSignUp, setTotalSignUp] = useState(0)
+  const [totalActiveSession, setTotalActiveSession] = useState(0)
+  const [averageSessionWeekly, setAverageSessionWeekly] = useState(0)
+  const [userList, setUserList] = useState([])
 
-  // console.log(analytics);
+  const fetchData = async () => {
+    try {
+        const statitics = await authAxios.get(`/users/statitics`)
+        setTotalSignUp(statitics.data.responses.number_of_signup)
+        setTotalActiveSession(statitics.data.responses.number_of_activeSessions)
+        setAverageSessionWeekly(statitics.data.responses.number_of_avg_activeSessions)
+    } catch (error) {
+    }
 
-  const onChangeDate = (dates: any) => {
-    const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
-  };
+    try {
+        const userList = await authAxios.get(`/users/list`)
+        setUserList(userList.data.responses)
+    } catch (error) {
+    }
+  }
 
-  // console.log("First date", firstDay);
-  // console.log(
-  //   Pipes.dateYMDWithDashed(startDate),
-  //   Pipes.dateYMDWithDashed(endDate)
-  // );
-
-  // useQuery
+  useEffect(() => {
+    fetchData(); 
+  }, [])
 
   return (
     <BaseLayout parent="/office" layout="withHeader">
       <Head>
-        <title>Vin Admin - Homepage</title>
+        <title>AHA - Homepage</title> 
       </Head>
       <h1 className="text-2xl font-black mb-6">
-        Vin Analytics - {Pipes.dateMY(currentDate)}
+        AHA Analytics
       </h1>
       {/* <p className="mb-4">Create, update and edit coupons data.</p> */}
 
-      <div className="flex-row flex w-full gap-4">
-        <div className="sm:w-3/12 w-full">
-          {/* <DateTime name="datetime" placeholder="All time" onChange={console.log()} /> */}
-          <div className="mb-4 flex gap-3">
-            <div className="relative">
-              <DatePicker
-                dateFormat="dd/MM/yyyy"
-                className="w-full border rounded-md border-grey placeholder:text-neutral-400 px-3 py-1.5 pr-10 text-secondary"
-                selected={startDate}
-                onChange={onChangeDate}
-                startDate={startDate}
-                endDate={endDate}
-                selectsRange
-                placeholderText="Select date"
-              />
-              <button
-                onClick={() =>
-                  reFetch(
-                    `/statistic/startdate=${startDate || firstDay}&enddate=${
-                      endDate || endDay
-                    }`
-                  )
-                }
-                className="border-0 bg-transparent text-neutral-400 absolute top-2.5 right-3"
-              >
-                {<IconCalendar />}
-              </button>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                reFetch(
-                  `/statistic/startdate=${startDate || firstDay}&enddate=${
-                    endDate || endDay
-                  }`
-                )
-              }
-              className="inline-block p-2 bg-primary-blue-1 hover:bg-primary-blue-2 text-white font-medium text-sm leading-snug rounded shadow-md active:shadow-lg transition duration-150 ease-in-out"
-            >
-              Apply
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         <Card>
           <div className="flex gap-3 lg:gap-8 justify-center">
             <div className="flex justify-center items-center">
               <Image
-                src={totalAudiencesIcon}
+                src={Icon1}
                 placeholder="blur"
                 alt="image"
                 width="48"
@@ -117,8 +69,8 @@ const Home = () => {
               />
             </div>
             <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.respondent}</p>
-              <h2>Audiences</h2>
+              <p className="text-2xl font-bold">{totalSignUp}</p>
+              <h2>Number of Sign Up</h2>
             </div>
           </div>
         </Card>
@@ -126,7 +78,7 @@ const Home = () => {
           <div className="flex gap-3 lg:gap-8 justify-center">
             <div className="flex justify-center items-center">
               <Image
-                src={totalResearchers}
+                src={Icon3}
                 placeholder="blur"
                 alt="image"
                 width="48"
@@ -134,8 +86,8 @@ const Home = () => {
               />
             </div>
             <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.researcher}</p>
-              <h2>Researchers</h2>
+              <p className="text-2xl font-bold">{totalActiveSession}</p>
+              <h2>Active Sessions Today</h2>
             </div>
           </div>
           {/* <div className="flex flex-col items-center justify-center">
@@ -147,7 +99,7 @@ const Home = () => {
           <div className="flex gap-3 lg:gap-8 justify-center">
             <div className="flex justify-center items-center">
               <Image
-                src={totalSurveysIcon}
+                src={Icon2}
                 placeholder="blur"
                 alt="image"
                 width="48"
@@ -155,148 +107,71 @@ const Home = () => {
               />
             </div>
             <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.survey}</p>
-              <h2>Surveys</h2>
+              <p className="text-2xl font-bold">{averageSessionWeekly}</p>
+              <h2>AVG Active Sessions Last 7 days</h2> 
             </div>
           </div>
-        </Card>
-        <Card>
-          <div className="flex gap-3 lg:gap-8 justify-center">
-            <div className="flex justify-center items-center">
-              <Image
-                src={totalResponses}
-                placeholder="blur"
-                alt="image"
-                width="48"
-                height="48"
-              />
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.response}</p>
-              <h2>Responses</h2>
-            </div>
-          </div>
-          {/* <div className="flex flex-col items-center justify-center">
-            <p className="text-2xl font-bold">{analytics?.response}</p>
-            <h2>Responses</h2>
-          </div> */}
-        </Card>
-        <Card>
-          <div className="flex gap-3 lg:gap-8 justify-center">
-            <div className="flex justify-center items-center">
-              <Image
-                src={pointEarned}
-                placeholder="blur"
-                alt="image"
-                width="48"
-                height="48"
-              />
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.pointEarned}</p>
-              <h2>Point Earned</h2>
-            </div>
-          </div>
-          {/* <div className="flex flex-col items-center justify-center">
-            <p className="text-2xl font-bold">{analytics?.pointEarned}</p>
-            <h2>Point Earned</h2>
-          </div> */}
-        </Card>
-        <Card>
-          <div className="flex gap-3 lg:gap-8 justify-center">
-            <div className="flex justify-center items-center">
-              <Image
-                src={pointUsed}
-                placeholder="blur"
-                alt="image"
-                width="48"
-                height="48"
-              />
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.pointUsed}</p>
-              <h2>Point Used</h2>
-            </div>
-          </div>
-          {/* <div className="flex flex-col items-center justify-center">
-            <p className="text-2xl font-bold">{analytics?.pointUsed}</p>
-            <h2>Point Used</h2>
-          </div> */}
-        </Card>
-        <Card>
-          <div className="flex gap-3 lg:gap-8 justify-center">
-            <div className="flex justify-center items-center">
-              <Image
-                src={totalUserInvited}
-                placeholder="blur"
-                alt="image"
-                width="48"
-                height="48"
-              />
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.userInvited}</p>
-              <h2>User Invited</h2>
-            </div>
-          </div>
-          {/* <div className="flex flex-col items-center justify-center">
-            <p className="text-2xl font-bold">{analytics?.userInvited}</p>
-            <h2>User Invited</h2>
-          </div> */}
-        </Card>
-        <Card>
-          <div className="flex gap-3 lg:gap-8 justify-center">
-            <div className="flex justify-center items-center">
-              <Image
-                src={totalUserVerified}
-                placeholder="blur"
-                alt="image"
-                width="48"
-                height="48"
-              />
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.userVerified}</p>
-              <h2>User Verified</h2>
-            </div>
-          </div>
-          {/* <div className="flex flex-col items-center justify-center">
-            <p className="text-2xl font-bold">{analytics?.userInvited}</p>
-            <h2>User Invited</h2>
-          </div> */}
-        </Card>
-        <Card>
-          <div className="flex gap-3 lg:gap-8 justify-center">
-            <div className="flex justify-center items-center">
-              <Image
-                src={totalUserPending}
-                placeholder="blur"
-                alt="image"
-                width="48"
-                height="48"
-              />
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-2xl font-bold">{analytics?.userPending}</p>
-              <h2>User Pending</h2>
-            </div>
-          </div>
-          {/* <div className="flex flex-col items-center justify-center">
-            <p className="text-2xl font-bold">{analytics?.userInvited}</p>
-            <h2>User Invited</h2>
-          </div> */}
         </Card>
       </div>
 
-      {/* <div className="flex justify-end mt-4">
-        <button
-          type="button"
-          // onClick={() => toggleAddModal()}
-          className="inline-block p-2 bg-primary-blue-1 hover:bg-primary-blue-2 text-white font-medium text-sm leading-snug rounded shadow-md active:shadow-lg transition duration-150 ease-in-out"
-        >
-          Create Survey
-        </button>
-      </div> */}
+      
+      {/* TABLES */}
+      <div className="overflow-x-auto relative mt-10">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" className="py-3 px-6 tracking-wider">
+                No.
+              </th>
+              <th scope="col" className="py-3 px-6">
+                Email
+              </th>
+              <th scope="col" className="py-3 px-6">
+                Fullname
+              </th>
+              <th scope="col" className="py-3 px-6">
+                Registered At
+              </th>
+              <th scope="col" className="py-3 px-6 text-center">
+                Login Count
+              </th>
+              <th scope="col" className="py-3 px-6">
+                Last Session
+              </th>
+            </tr>
+          </thead>
+          {userList.map((data:any, index) => {
+              return (
+                <tbody key={data.id}>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      {index + 1}
+                    </th>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      {Pipes.strLimiter(data.email)}
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      {Pipes.strLimiter(data.fullname)}
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      {moment(data.createdAt).format("YYYY/MM/DD kk:mm:ss")}
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap text-center">
+                      {data.loginCount}
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                    {moment(data.lastlogin).format("YYYY/MM/DD kk:mm:ss")}
+                    </td>
+                  </tr>
+                </tbody>
+              );
+            })}
+        </table>
+      </div>
+
     </BaseLayout>
   );
 };
