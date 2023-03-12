@@ -6,9 +6,11 @@
 
 ## Running
 
-_Easily set up a local development environment with single command!_
+_Easily set up a local production environment with simple command!_
 
 - clone the repo
+- `npm install` 
+- `npm run build` 
 - `npm run start` 🚀
 
 Visit [localhost:2095](http://localhost:2095/) 
