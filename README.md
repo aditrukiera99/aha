@@ -1,4 +1,4 @@
-# Express / TypeScript /  RESTful API
+# React / TypeScript
 
 ## Requirements
 
